@@ -1,0 +1,34 @@
+name: build nodejs application
+
+# Multiple triggers
+on:
+  workflow_dispatch:     # Manual run
+  push:                  # Trigger on code push
+    branches:
+      - master
+  pull_request:          # Trigger on PR creation
+    branches:
+      - master
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v6   # 'uses' runs ONE action
+
+      - name: Install nodejs
+        uses: actions/setup-node@v6
+        with:                      # 'with' is a map of inputs
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install node dependencies
+        run: npm ci
+
+      - name: Execute test cases
+        run: npm test
+
+      - name: Build the nodejs code
+        run: npm run build
