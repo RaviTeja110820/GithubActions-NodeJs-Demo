@@ -1,20 +1,29 @@
 name: build nodejs Application
 
 on:
- workflow_dispatch:
- push:
+ workflow_dispatch:   # Manual trigger from GitHub UI
+ push:                # Also trigger when code is pushed
 
 jobs:
   job1:
-   continue-on-error: true   # Even if one matrix combo fails, workflow continues
+   continue-on-error: true   # Even if one matrix job fails, workflow continues
 
    strategy:
      matrix:
-      node-version: [12,16,18]            # Variable 1
-      operating-system: [ubuntu-latest, windows-latest]  # Variable 2
+      node-version: [12,16,18]                 # Variable 1 → Node versions
+      operating-system: [ubuntu-latest, windows-latest]   # Variable 2 → OS
 
+      exclude:        # ❌ Remove specific unwanted combinations
+      - node-version: 12
+        operating-system: ubuntu-latest
+      - node-version: 12
+        operating-system: windows-latest
 
-   runs-on: ${{ matrix.operating-system }}   # Runner changes per matrix
+      include:        # ✅ Add an extra custom combination
+      - node-version: 18
+        operating-system: ubuntu-22.04
+
+   runs-on: ${{ matrix.operating-system }}   # Runner OS changes per matrix
 
    steps:
     - name: Clone the repo
@@ -23,7 +32,7 @@ jobs:
     - name: Install nodejs
       uses: actions/setup-node@v4
       with:
-          node-version: ${{ matrix.node-version }}   # Node version changes
+          node-version: ${{ matrix.node-version }}   # Node version changes per run
           cache: 'npm'
 
     - name: Install dependencies
