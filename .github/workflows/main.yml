@@ -1,34 +1,44 @@
-name: build nodejs application
+name: build nodejs Application
 
-# Multiple triggers
 on:
-  workflow_dispatch:     # Manual run
-  push:                  # Trigger on code push
-    branches:
-      - master
-  pull_request:          # Trigger on PR creation
-    branches:
-      - master
+ workflow_dispatch:
+ push:
 
 jobs:
   job1:
-    runs-on: ubuntu-latest
+   continue-on-error: true   # Even if one matrix combo fails, workflow continues
 
-    steps:
-      - name: Clone the repo
-        uses: actions/checkout@v6   # 'uses' runs ONE action
+   strategy:
+     matrix:
+      node-version: [12,16,18]            # Variable 1
+      operating-system: [ubuntu-latest, windows-latest]  # Variable 2
 
-      - name: Install nodejs
-        uses: actions/setup-node@v6
-        with:                      # 'with' is a map of inputs
-          node-version: 18
+      exclude:            # ❌ Remove unwanted combinations
+      - node-version: 12
+        operating-system: ubuntu-latest
+      - node-version: 12
+        operating-system: windows-latest
+
+   runs-on: ${{ matrix.operating-system }}   # Runner changes per matrix
+
+   steps:
+    - name: Clone the repo
+      uses: actions/checkout@v4
+
+    - name: Install nodejs
+      uses: actions/setup-node@v4
+      with:
+          node-version: ${{ matrix.node-version }}   # Node version changes
           cache: 'npm'
 
-      - name: Install node dependencies
-        run: npm ci
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Execute test cases
-        run: npm test
+    - name: Executes test cases
+      run: npm test
 
-      - name: Build the nodejs code
-        run: npm run build
+    - name: Build the code
+      run: npm run build
+
+    - name: Deploy the code
+      run: echo 'Deploy the code'
