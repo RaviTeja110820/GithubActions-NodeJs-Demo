@@ -13,11 +13,6 @@ jobs:
       node-version: [12,16,18]            # Variable 1
       operating-system: [ubuntu-latest, windows-latest]  # Variable 2
 
-      exclude:            # ❌ Remove unwanted combinations
-      - node-version: 12
-        operating-system: ubuntu-latest
-      - node-version: 12
-        operating-system: windows-latest
 
    runs-on: ${{ matrix.operating-system }}   # Runner changes per matrix
 
